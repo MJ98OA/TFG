@@ -2,7 +2,7 @@ package com.tfg.myapplication
 
 import com.google.gson.Gson
 
-data class DatosRestaurante(var coordenadas:String, var estrellas: String,  var nombre:String, var precioMedio:String) {
+data class DatosRestaurante(var estrellas:String, var latitud:Double,var longitud:Double) {
 
     override fun toString(): String {
         val gson = Gson()

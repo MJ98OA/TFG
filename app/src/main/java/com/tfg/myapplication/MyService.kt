@@ -20,22 +20,25 @@ class MyService : Service() {
 
     lateinit var database:DatabaseReference
     private val TAG:String="MyService"
-    lateinit var listaCoordenadas:MutableList<String>
+    lateinit var listaCoordenadas:MutableList<DatosRestaurante>
 
 
+    companion object{
+        val handler=Handler()
 
-    val handler=Handler()
+    }
+
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        coordenadasRestaurantes()
-        var nombreUsuario= intent?.let {
+
+        intent?.let {
             it.getStringExtra("usuario")
             Log.d(TAG,it.getStringExtra("usuario").toString())
-        }.toString()
+        }
 
         Log.d(TAG,"Start")
-        Log.d(TAG,nombreUsuario)
 
+        coordenadasRestaurantes()
 
 
 
@@ -120,10 +123,22 @@ class MyService : Service() {
 
 
             database = FirebaseDatabase.getInstance().reference
+
+            database.get().addOnSuccessListener {
+
+
+
+            }
+
             val postListener = object : ValueEventListener {
                 override fun onDataChange(dataSnapshot: DataSnapshot) {
 
-                    dataSnapshot.child("Usuarios").child("puntos").value.toString()
+
+                    for(i in dataSnapshot.children){
+
+                        print(i.child("idN").toString())
+                        listaCoordenadas.add(DatosRestaurante(i.child("Coordenadas")))
+                    }
 
 
 

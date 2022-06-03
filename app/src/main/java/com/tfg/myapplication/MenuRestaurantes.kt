@@ -23,7 +23,6 @@ class MenuRestaurantes : AppCompatActivity() {
         setContentView(binding.root)
 
 
-
     }
 
 

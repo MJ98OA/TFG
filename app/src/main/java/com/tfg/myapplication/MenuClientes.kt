@@ -67,11 +67,10 @@ class MenuClientes : AppCompatActivity() {
                     }
                 }
 
-                Intent(this,MyService::class.java).also {
-                    intent.putExtra("usuario",usuario.toString())
-                    startService(it)
-
+                val intent:Intent=Intent(this,MyService::class.java).apply {
+                    putExtra("usuario",usuario.toString())
                 }
+                startService(intent)
 
 
 
