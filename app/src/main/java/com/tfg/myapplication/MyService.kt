@@ -2,6 +2,7 @@ package com.tfg.myapplication
 
 import android.annotation.SuppressLint
 import android.app.Service
+import android.content.ContentValues
 import android.content.Intent
 import android.location.Location
 import android.location.LocationManager
@@ -13,25 +14,40 @@ import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
-import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.*
 
 class MyService : Service() {
 
     lateinit var database:DatabaseReference
     private val TAG:String="MyService"
+    lateinit var listaCoordenadas:MutableList<String>
+
+
+
     val handler=Handler()
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        coordenadasRestaurantes()
+        var nombreUsuario= intent?.let {
+            it.getStringExtra("usuario")
+            Log.d(TAG,it.getStringExtra("usuario").toString())
+        }.toString()
+
         Log.d(TAG,"Start")
+        Log.d(TAG,nombreUsuario)
+
+
+
+
 
         handler.apply {
             val runnable = object:Runnable{
                 override fun run() {
                     getCurrentLocation()
-                    postDelayed(this,3000)
+                    postDelayed(this,1000)
                 }
             }
-            postDelayed(runnable,3000)
+            postDelayed(runnable,1000)
         }
         return START_STICKY
     }
@@ -66,35 +82,63 @@ class MyService : Service() {
 
                         var latitude = locationResult.locations.get(locIndex).latitude
                         var longitud = locationResult.locations.get(locIndex).longitude
-                        Log.d(TAG,""+latitude)
-                        Log.d(TAG,""+longitud)
 
+                        comprarCoordenadas(latitude,longitud)
                     }
                 }
 
             }, Looper.getMainLooper())
 
-        comprarCoordenadas()
+
 
 
     }
 
 
-    fun comprarCoordenadas(){
-
+    fun comprarCoordenadas(latitude:Double,longitud:Double){
 
 
         var targetlocation1 = Location(LocationManager.GPS_PROVIDER)
-        targetlocation1.latitude = 36.4220005
-        targetlocation1.longitude = -121.0839996
+        targetlocation1.latitude = 16.4220005
+        targetlocation1.longitude = -21.0839996
 
         var targetlocation2 = Location(LocationManager.GPS_PROVIDER)
-        targetlocation2.latitude = 37.4200005
-        targetlocation2.longitude = -122.0819996
+        targetlocation2.latitude = latitude
+        targetlocation2.longitude = longitud
+
+        Log.d(TAG,""+latitude)
+        Log.d(TAG,""+longitud)
 
         targetlocation1.distanceTo(targetlocation2)
 
-        Log.d(TAG,"aaa"+targetlocation1.distanceTo(targetlocation2).toString())
+        Log.d(TAG,targetlocation1.distanceTo(targetlocation2).toString())
+
+
+    }
+
+    fun coordenadasRestaurantes(){
+
+
+            database = FirebaseDatabase.getInstance().reference
+            val postListener = object : ValueEventListener {
+                override fun onDataChange(dataSnapshot: DataSnapshot) {
+
+                    dataSnapshot.child("Usuarios").child("puntos").value.toString()
+
+
+
+
+                }
+
+
+                override fun onCancelled(databaseError: DatabaseError) {
+
+                    Log.w(ContentValues.TAG, "loadPost:onCancelled", databaseError.toException())
+                }
+            }
+            database.addValueEventListener(postListener)
+            database.addListenerForSingleValueEvent(postListener)
+
 
 
     }

@@ -1,10 +1,13 @@
 package com.tfg.myapplication
 
 import android.annotation.SuppressLint
+import android.content.ContentValues.TAG
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Looper
+import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -13,8 +16,8 @@ import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
+import com.google.firebase.database.*
 import com.tfg.myapplication.databinding.MenuclientesBinding
-import com.google.firebase.database.DatabaseReference
 
 class MenuClientes : AppCompatActivity() {
 
@@ -24,8 +27,6 @@ class MenuClientes : AppCompatActivity() {
 
     companion object {
         private val REQUEST_PERMISSION_REQUEST_CODE = 2020
-
-
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,7 +36,9 @@ class MenuClientes : AppCompatActivity() {
         setContentView(binding.root)
         val bundle: Bundle? = intent.extras
         var usuario: String? = bundle?.getString("Usuario")
-        binding.usuario.text = usuario
+
+
+        obtenerpuntos(usuario.toString())
 
 
 
@@ -49,13 +52,25 @@ class MenuClientes : AppCompatActivity() {
                     ActivityCompat.requestPermissions(this@MenuClientes,
                         arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION)
                         ,REQUEST_PERMISSION_REQUEST_CODE)
+                }
+                binding.btnLocalizacionSegundoPlano.visibility= View.VISIBLE
 
-                }else {
-                    getCurrentLocation()
+
+                binding.btnLocalizacionSegundoPlano.setOnClickListener {
+                    if (ContextCompat.checkSelfPermission(
+                            applicationContext,android.Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED)
+                    {
+                        ActivityCompat.requestPermissions(this@MenuClientes,
+                            arrayOf(android.Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+                            ,REQUEST_PERMISSION_REQUEST_CODE)
+
+                    }
                 }
 
                 Intent(this,MyService::class.java).also {
+                    intent.putExtra("usuario",usuario.toString())
                     startService(it)
+
                 }
 
 
@@ -68,56 +83,32 @@ class MenuClientes : AppCompatActivity() {
         }
 
 
+
+
+
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == REQUEST_PERMISSION_REQUEST_CODE && grantResults.size > 0){
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                getCurrentLocation()
-            }else{
-                Toast.makeText(this@MenuClientes,"Permission Denied!",Toast.LENGTH_SHORT).show()
+    fun obtenerpuntos(usuario:String){
+        database = FirebaseDatabase.getInstance().reference
+        val postListener = object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+
+                binding.usuario.text=dataSnapshot.child("Usuarios").child(usuario).child("puntos").value.toString()
+
+            }
+
+
+            override fun onCancelled(databaseError: DatabaseError) {
+
+                Log.w(TAG, "loadPost:onCancelled", databaseError.toException())
             }
         }
-    }
-
-
-
-    @SuppressLint("MissingPermission")
-
-    private fun getCurrentLocation() {
-
-        var locationRequest = LocationRequest()
-        locationRequest.interval = 10000
-        locationRequest.fastestInterval = 5000
-        locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-
-
-
-
-        LocationServices.getFusedLocationProviderClient(this@MenuClientes)
-            .requestLocationUpdates(locationRequest,object :LocationCallback(){
-                override fun onLocationResult(locationResult: LocationResult?) {
-                    super.onLocationResult(locationResult)
-                    LocationServices.getFusedLocationProviderClient(this@MenuClientes)
-                        .removeLocationUpdates(this)
-                    if (locationResult != null && locationResult.locations.size > 0){
-                        var locIndex = locationResult.locations.size-1
-
-                        var latitude = locationResult.locations.get(locIndex).latitude
-
-                        binding.coordenadas.text=""+latitude
-
-                    }
-                }
-
-            }, Looper.getMainLooper())
+        database.addValueEventListener(postListener)
+        database.addListenerForSingleValueEvent(postListener)
 
     }
+
+
 }
 
 

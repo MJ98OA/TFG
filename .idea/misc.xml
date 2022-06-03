@@ -3,10 +3,12 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/mario/AndroidStudioProjects/tfg/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.116" />
         <entry key="..\:/Users/mario/AndroidStudioProjects/tfg/app/src/main/res/drawable/gradient.xml" value="0.1215" />
-        <entry key="..\:/Users/mario/AndroidStudioProjects/tfg/app/src/main/res/layout/menuclientes.xml" value="0.11041666666666666" />
+        <entry key="..\:/Users/mario/AndroidStudioProjects/tfg/app/src/main/res/drawable/ic_launcher_background.xml" value="0.116" />
+        <entry key="..\:/Users/mario/AndroidStudioProjects/tfg/app/src/main/res/layout/menuclientes.xml" value="0.264" />
         <entry key="..\:/Users/mario/AndroidStudioProjects/tfg/app/src/main/res/layout/menurestaurantes.xml" value="0.11041666666666666" />
-        <entry key="..\:/Users/mario/AndroidStudioProjects/tfg/app/src/main/res/layout/registro_activity.xml" value="0.11041666666666666" />
+        <entry key="..\:/Users/mario/AndroidStudioProjects/tfg/app/src/main/res/layout/registro_activity.xml" value="0.264" />
       </map>
     </option>
   </component>
