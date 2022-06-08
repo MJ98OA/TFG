@@ -1,10 +1,7 @@
 package com.tfg.myapplication
 
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.graphics.Color
-import android.location.Address
-import android.location.Geocoder
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -23,15 +20,15 @@ import com.google.firebase.ktx.Firebase
 
 class MainActivity : AppCompatActivity() {
 
-    companion object{
-        var loginActivado=true
-        var tClientesfRestaurante:Boolean?=null
-        lateinit var usuarioNuevo:Usuario
-        private val TAG:String="MyService"
+    companion object {
+        var loginActivado = true
+        var tClientesfRestaurante: Boolean? = null
+        lateinit var usuarioNuevo: Usuario
+        private val TAG: String = "MyService"
     }
 
     private lateinit var firebaseAnalytics: FirebaseAnalytics
-    private lateinit var binding:RegistroActivityBinding
+    private lateinit var binding: RegistroActivityBinding
     private lateinit var firebaseRealTimeData: FirebaseDatabase
     private lateinit var database: DatabaseReference
 
@@ -42,160 +39,131 @@ class MainActivity : AppCompatActivity() {
         firebaseAnalytics = Firebase.analytics
         firebaseRealTimeData = Firebase.database
         super.onCreate(savedInstanceState)
-        binding= RegistroActivityBinding.inflate(layoutInflater)
+        binding = RegistroActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        binding.botonLogin.setOnClickListener {
+            if (requisitosLogin()) {
 
+                database.get().addOnSuccessListener {
+                    if (it.child("Usuarios").child("puntos").exists()) {
 
-        binding.botonRegistroLoginTxt.setOnClickListener {
-            ActivarRegistro()
+                        val menuCliente: Intent = Intent(this, MenuClientes::class.java).apply {
+                            putExtra("Usuario", binding.correoTXT.text.toString())
+                        }
+                        startActivity(menuCliente)
+                    } else {
+
+                        val menuRestaurante: Intent = Intent(this, MenuRestaurantes::class.java).apply {
+                            putExtra("Usuario", binding.correoTXT.text)
+                        }
+                        startActivity(menuRestaurante)
+                    }
+                }
+            }
         }
 
-
-        binding.botonRegistro.setOnClickListener {
-            if(requisitosCorreoContrasenia() && tClientesfRestaurante!=null){
-                    binding.imgCliente.visibility = View.GONE
-                    binding.imgRestaurante.visibility=View.GONE
-                    crearUsuario()
-            }
+        binding.botonRegistroLoginTxt.setOnClickListener{
+            mostrarRegistro()
         }
 
         binding.imgCliente.setOnClickListener{
-            if(!loginActivado){
-                activarImgCliente()
-            }else{
-                binding.imgCliente.setBackgroundColor(Color.TRANSPARENT)
-            }
-
-        }
-        binding.imgRestaurante.setOnClickListener{
-            if(!loginActivado){
-                activarImgRestaurante()
-            }else{
-                binding.imgRestaurante.setBackgroundColor(Color.TRANSPARENT)
-            }
-
-        }
-
-        binding.botonLogin.setOnClickListener {
-            if(requisitosCorreoContrasenia())
-                FirebaseAuth.getInstance().signInWithEmailAndPassword(binding.correoTXT.text.toString(), binding.contraseniaTXT.text.toString()
-                ).addOnCompleteListener{
-                    if(it.isSuccessful){
-                        inicioMenuCliente()
-                    }else
-                        Toast.makeText(this, "Usuario no existente o contraseña/email incorrectos", Toast.LENGTH_SHORT).show()
-                }
-        }
-
-    }
-
-
-
-
-    fun inicioMenuCliente(){
-
-
-        val menuCliente:Intent=Intent(this,MenuClientes::class.java).apply {
-            usuarioNuevo = Usuario(
-                binding.correoTXT.text.toString().substring(0, binding.correoTXT.text.toString().indexOf("@")), 0)
-            Log.d(TAG,usuarioNuevo.nombre)
-            putExtra("Usuario" , usuarioNuevo.nombre)
-
-        }
-        startActivity(menuCliente)
-    }
-
-
-    fun activarImgCliente (){
-        binding.imgCliente.setBackgroundColor(Color.parseColor("#86FAD9"))
-        binding.imgRestaurante.setBackgroundColor(Color.TRANSPARENT)
-        tClientesfRestaurante=true
-        Toast.makeText(this, tClientesfRestaurante.toString(), Toast.LENGTH_SHORT).show()
-    }
-    fun activarImgRestaurante(){
-        binding.imgRestaurante.setBackgroundColor(Color.parseColor("#86FAD9"))
-        binding.imgCliente.setBackgroundColor(Color.TRANSPARENT)
-        tClientesfRestaurante=false
-        Toast.makeText(this, tClientesfRestaurante.toString(), Toast.LENGTH_SHORT).show()
-    }
-
-    fun ActivarRegistro(){
-        if(loginActivado){
-            binding.txtRegistroLogin.text="Accede ya"
-            binding.botonRegistroLoginTxt.text="Login"
-            binding.botonRegistro.visibility=View.VISIBLE
-            binding.botonLogin.visibility=View.GONE
-            loginActivado=false
-            binding.imgRestaurante.visibility=View.VISIBLE
-            binding.imgCliente.visibility=View.VISIBLE
-            binding.txtEstadoLogReg.text="Registro"
-        }
-
-        else{
-            binding.txtEstadoLogReg.text="Login"
-            tClientesfRestaurante=null
-            binding.txtRegistroLogin.text="¿No tienes cuenta?"
-            binding.botonRegistroLoginTxt.text="Registrate"
-            binding.botonRegistro.visibility=View.GONE
-            binding.botonLogin.visibility=View.VISIBLE
-            loginActivado=true
-            binding.imgCliente.setBackgroundColor(Color.TRANSPARENT)
+            tClientesfRestaurante=true
             binding.imgRestaurante.setBackgroundColor(Color.TRANSPARENT)
-            binding.imgRestaurante.visibility=View.GONE
-            binding.imgCliente.visibility=View.GONE
+            binding.imgCliente.setBackgroundColor(Color.parseColor("#86FAD9"))
         }
-    }
 
-    fun crearUsuario() {
-        if (tClientesfRestaurante == null) {
-            Toast.makeText(this, "Selecciona si eres cliente o restaurante primero", Toast.LENGTH_SHORT).show()
-        } else {
-            usuarioNuevo = Usuario(
-                binding.correoTXT.text.toString().substring(0, binding.correoTXT.text.toString().indexOf("@")), 0
-            )
+        binding.imgRestaurante.setOnClickListener {
+            tClientesfRestaurante=false
+            binding.imgCliente.setBackgroundColor(Color.TRANSPARENT)
+            binding.imgRestaurante.setBackgroundColor(Color.parseColor("#86FAD9"))
+        }
 
-            FirebaseAuth.getInstance().createUserWithEmailAndPassword(
-                binding.correoTXT.text.toString(), binding.contraseniaTXT.text.toString()
-            ).addOnCompleteListener {
-                if (it.isSuccessful) {
-                    if(tClientesfRestaurante==true) {
-                        val usuariocreado = firebaseRealTimeData.getReference("Usuarios").child(
-                            usuarioNuevo.nombre
-                        )
-                        usuariocreado.setValue(Usuario(usuarioNuevo.nombre, 0))
-                    }else{
-                        val usuariocreado = firebaseRealTimeData.getReference("Restaurantes").child(
-                            usuarioNuevo.nombre
-                        )
-                        var mutableListDescuentos: MutableList<String> = mutableListOf("")
-                        var mutableListPuntos: MutableList<String> = mutableListOf("")
-
-                        usuariocreado.setValue(Restaurante(mutableListDescuentos,mutableListPuntos))
-                    }
-
-                } else
-                    Toast.makeText(this, "Usaurio ya registrado", Toast.LENGTH_SHORT).show()
+        binding.botonRegistro.setOnClickListener {
+            if(requisitosLogin()){
+                if(tClientesfRestaurante==null)
+                    Toast.makeText(this, "Selecciona si eres cliente o restaurante primero", Toast.LENGTH_SHORT).show()
+                else{
+                    if(crearUsuario())
+                        ocultarRegistro()
+                }
             }
-
+            tClientesfRestaurante=null
         }
-
-
     }
-    fun requisitosCorreoContrasenia(): Boolean {
 
-        if(binding.correoTXT.text.isEmpty() || binding.contraseniaTXT.text.isEmpty()) {
+    fun requisitosLogin(): Boolean {
+        if (binding.correoTXT.text.isEmpty() || binding.contraseniaTXT.text.isEmpty()) {
             Toast.makeText(this, "Rellena los campos primero", Toast.LENGTH_SHORT).show()
-        }else {
-            if (!(binding.contraseniaTXT.text.contains("(?=.*[a-zA-Z])(?=.*[0-9])".toRegex()) && binding.contraseniaTXT.text.length>=8))
+        } else {
+            if (!(binding.contraseniaTXT.text.contains("(?=.*[a-zA-Z])(?=.*[0-9])".toRegex()) && binding.contraseniaTXT.text.length >= 8))
                 Toast.makeText(this, "La contraseña debe de ser de mas de 8 digitos y combinación de letras y numeros", Toast.LENGTH_SHORT).show()
 
-            if (!binding.correoTXT.text.contains("(?=.*[@])(?=.*[.])".toRegex()))
-                Toast.makeText(this, "El correo no cumple el formato", Toast.LENGTH_SHORT).show()
+            if (!binding.correoTXT.text.contains("(?=.*[@])(?=.*[.])".toRegex())) Toast.makeText(this, "El correo no cumple el formato", Toast.LENGTH_SHORT).show()
         }
 
-        return  binding.contraseniaTXT.text.length >= 8 && binding.correoTXT.text.contains("(?=.*[@])(?=.*[.])".toRegex())
+        return binding.contraseniaTXT.text.length >= 8 && binding.correoTXT.text.contains("(?=.*[@])(?=.*[.])".toRegex())
 
+    }
+
+    fun crearUsuario():Boolean {
+        var creado:Boolean=true
+            FirebaseAuth.getInstance().createUserWithEmailAndPassword(binding.correoTXT.text.toString(), binding.contraseniaTXT.text.toString()).addOnCompleteListener {
+                if (it.isSuccessful) {
+                    if (tClientesfRestaurante == true) {
+                        var nuevoCliente = Usuario(binding.correoTXT.text.toString(), 0)
+                        val clienteBaseDatos = firebaseRealTimeData.getReference("Usuarios").child((nickUsuariosincorreo(nuevoCliente.nombre)))
+                        clienteBaseDatos.setValue(nuevoCliente)
+
+                    } else {
+                        var listaDescuentos: MutableList<String> = mutableListOf("")
+                        var listaPuntos: MutableList<String> = mutableListOf("")
+                        var nuevoRestaurante = Restaurante(binding.correoTXT.text.toString(),listaDescuentos,listaPuntos)
+
+                        val restauranteBaseDatos = firebaseRealTimeData.getReference("Restaurantes").child((nickUsuariosincorreo(nuevoRestaurante.nombre)))
+                        restauranteBaseDatos.setValue(nuevoRestaurante)
+                    }
+
+                } else{
+                    Toast.makeText(this, "Usaurio ya registrado o problema con FireBase", Toast.LENGTH_SHORT).show()
+                    creado=false
+                }
+
+            }
+        return creado
+    }
+
+    fun mostrarRegistro(){
+        binding.botonRegistro.visibility= View.VISIBLE
+        binding.botonLogin.visibility=View.GONE
+        binding.imgRestaurante.visibility=View.VISIBLE
+        binding.imgCliente.visibility=View.VISIBLE
+        binding.txtEstadoLogReg.text="Registrate"
+        binding.botonRegistroLoginTxt.text=""
+        binding.txtRegistroLogin.text=""
+    }
+
+    fun ocultarRegistro(){
+        binding.botonRegistro.visibility= View.GONE
+        binding.botonLogin.visibility=View.VISIBLE
+        binding.imgRestaurante.visibility=View.GONE
+        binding.imgCliente.visibility=View.GONE
+        binding.txtEstadoLogReg.text="Login"
+        binding.botonRegistroLoginTxt.text="Registrate"
+        binding.txtRegistroLogin.text="¿No tienes cuenta?"
+    }
+
+    fun nickUsuariosincorreo(usuario:String):String{
+        var nick=usuario.substring(0, binding.correoTXT.text.toString().indexOf("@"))
+        var nickadaptado:String=""
+        var caracteresNoadmitidos: List<Char> = listOf('.','#','$','[',']')
+
+        nick.forEach{
+           if(!caracteresNoadmitidos.contains(it))
+               nickadaptado+=it
+        }
+        return nickadaptado
     }
 
 }
+
