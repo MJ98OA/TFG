@@ -36,7 +36,6 @@ class MyService : Service() {
 
         intent?.let {
             it.getStringExtra("usuario")
-
         }
 
         Log.d(TAG,"Start")

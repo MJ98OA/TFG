@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     android:background="@drawable/gradient"
     android:orientation="vertical"
+    android:id="@+id/registroAuth"
     tools:context=".MainActivity">
 
     <TextView

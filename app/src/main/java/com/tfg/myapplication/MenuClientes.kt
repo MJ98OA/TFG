@@ -40,17 +40,20 @@ class MenuClientes : AppCompatActivity() {
         //obtencion de los datos del usuario
         val bundle: Bundle? = intent.extras
         var usuario: String? = bundle?.getString("Usuario")
+        var correo: String? = bundle?.getString("Correo")
         var contrasenia:String? = bundle?.getString("Contrasenia")
+
 
         obtenerpuntos(usuario.toString())
 
-        //substring(0, binding.correoTXT.text.toString().indexOf("@")
+
         binding.usuario.text= usuario?.let { it.substring(0,it.indexOf("@")) }.toString()
 
         //guardado de datos usuario en sharepreferences
         val prefs = getSharedPreferences(getString(R.string.prefs_file), Context.MODE_PRIVATE).edit()
-        prefs.putString("Usuario",usuario)
-        prefs.putString("Contrasenia",contrasenia)
+        prefs.putString("Usuario",usuario.toString())
+        prefs.putString("Contrasenia",contrasenia.toString())
+        prefs.putString("Correo",correo.toString())
         prefs.apply()
 
         binding.onOffLocalizacion.setOnCheckedChangeListener { buttonView, isChecked ->
@@ -85,6 +88,9 @@ class MenuClientes : AppCompatActivity() {
 
 
                 binding.btnLogOut.setOnClickListener{
+                    val prefs = getSharedPreferences(getString(R.string.prefs_file), Context.MODE_PRIVATE).edit()
+                    prefs.clear()
+                    prefs.apply()
                     FirebaseAuth.getInstance().signOut()
                     onBackPressed()
                 }
