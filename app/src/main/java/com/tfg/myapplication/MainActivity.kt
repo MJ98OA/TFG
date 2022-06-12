@@ -50,14 +50,14 @@ class MainActivity : AppCompatActivity() {
             if (loginrelleno()) {
                 Toast.makeText(this, "Rellena los campos primero", Toast.LENGTH_SHORT).show()
             } else if (!requisitosUsuarioContrasenia()) {
-                Toast.makeText(this, "Requisitos: contraseña de 8 digitos al menos 1 letra y numero\n direccion de corro valida", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Requisitos: contraseña de 8 digitos al menos 1 letra y numero\n una direccion de correo valida \n no se admiten puntos en el nombre de usuario", Toast.LENGTH_SHORT).show()
             } else {
                 comprobarTipoUsuario()
                 FirebaseAuth.getInstance().signInWithEmailAndPassword(binding.correoTXT.text.toString(),binding.contraseniaTXT.text.toString()).addOnCompleteListener {
                     if(it.isSuccessful){
                         if(valor==true){
                             val menuCliente:Intent=Intent(this,MenuClientes::class.java).apply {
-                                putExtra("Usuario" , nickUsuarioAdaptado(binding.contraseniaTXT.text.toString()))
+                                putExtra("Usuario" , nickUsuarioAdaptado())
                                 putExtra("Correo",binding.correoTXT.text.toString())
                                 putExtra("Contrasenia",binding.contraseniaTXT.text.toString())
                             }
@@ -118,17 +118,17 @@ class MainActivity : AppCompatActivity() {
         Log.d(TAG,correoSesionGuardada.toString())
         if(correoSesionGuardada!=null){
             binding.registroAuth.visibility=View.GONE
-            comprobarTipoUsuarioLogeado(nickUsuarioAdaptado(correoSesionGuardada.toString()))
+            comprobarTipoUsuarioLogeado(nickUsuarioAdaptado())
             if(tipoUsuariotClientfRestaurante==true){
                 val menuCliente:Intent=Intent(this,MenuClientes::class.java).apply {
-                    putExtra("Usuario" , nickUsuarioAdaptado(correoSesionGuardada.toString()))
+                    putExtra("Usuario" , nickUsuarioAdaptado())
                     putExtra("Correo",binding.correoTXT.text.toString())
                     putExtra("Contrasenia",binding.contraseniaTXT.text.toString())
                 }
                 startActivity(menuCliente)
             }else if(valor==false){
                 val menuRestaurante:Intent=Intent(this,MenuRestaurantes::class.java).apply {
-                    putExtra("Usuario" , nickUsuarioAdaptado(correoSesionGuardada))
+                    putExtra("Usuario" , nickUsuarioAdaptado())
                     putExtra("Correo",binding.correoTXT.text.toString())
                     putExtra("Contrasenia",binding.contraseniaTXT.text.toString())
                 }
@@ -152,14 +152,14 @@ class MainActivity : AppCompatActivity() {
 
     fun comprobarTipoUsuario() {
 
-        database.child("Usuarios").child(nickUsuarioAdaptado(binding.correoTXT.text.toString())).child("tipo").get().addOnSuccessListener {
+        database.child("Usuarios").child(nickUsuarioAdaptado()).child("tipo").get().addOnSuccessListener {
             if(it.value==true) {
                 valor = true
                 binding.textoEslogan.text = valor.toString()
             }
         }
 
-            database.child("Restaurantes").child(nickUsuarioAdaptado(binding.contraseniaTXT.text.toString())).child("tipo").get().addOnSuccessListener {
+            database.child("Restaurantes").child(nickUsuarioAdaptado()).child("tipo").get().addOnSuccessListener {
                 if(it.value==false){
                     valor = false
                     binding.textoEslogan.text= valor.toString()
@@ -212,10 +212,12 @@ class MainActivity : AppCompatActivity() {
         FirebaseAuth.getInstance().createUserWithEmailAndPassword(binding.correoTXT.text.toString(), binding.contraseniaTXT.text.toString()).addOnCompleteListener {
             if (it.isSuccessful) {
                 var nuevoCliente = Usuario(binding.correoTXT.text.toString(), 0, true)
-                val clienteBaseDatos = firebaseRealTimeData.getReference("Usuarios").child((nickUsuarioAdaptado(binding.contraseniaTXT.text.toString())))
+                val clienteBaseDatos = firebaseRealTimeData.getReference("Usuarios").child((nickUsuarioAdaptado()))
                 clienteBaseDatos.setValue(nuevoCliente)
                 ocultarRegistro()
             }
+        }.addOnFailureListener{
+            Toast.makeText(this,"Usuario ya registrado o fallo en FireBase",Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -227,12 +229,14 @@ class MainActivity : AppCompatActivity() {
                 var listaPuntos: MutableList<String> = mutableListOf("")
                 var nuevoRestaurante = Restaurante(binding.correoTXT.text.toString(), listaDescuentos, listaPuntos,false)
 
-                val restauranteBaseDatos = firebaseRealTimeData.getReference("Restaurantes").child((nickUsuarioAdaptado(binding.contraseniaTXT.text.toString())))
+                val restauranteBaseDatos = firebaseRealTimeData.getReference("Restaurantes").child((nickUsuarioAdaptado()))
                 restauranteBaseDatos.setValue(nuevoRestaurante)
                 ocultarRegistro()
             }
 
 
+        }.addOnFailureListener {
+            Toast.makeText(this,"Usuario ya registrado o fallo en FireBase",Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -260,12 +264,12 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    fun nickUsuarioAdaptado(correoUsuario:String): String {
+    fun nickUsuarioAdaptado(): String {
 
         var nickadaptado = ""
         val caracteresNoadmitidos: List<Char> = listOf('.', '#', '$', '[', ']')
 
-        correoUsuario.forEach {
+        binding.correoTXT.text.forEach {
             if (!caracteresNoadmitidos.contains(it))
                 nickadaptado += it
         }

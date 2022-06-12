@@ -43,7 +43,6 @@ class MenuClientes : AppCompatActivity() {
         var correo: String? = bundle?.getString("Correo")
         var contrasenia:String? = bundle?.getString("Contrasenia")
 
-
         obtenerpuntos(usuario.toString())
 
 
@@ -51,9 +50,8 @@ class MenuClientes : AppCompatActivity() {
 
         //guardado de datos usuario en sharepreferences
         val prefs = getSharedPreferences(getString(R.string.prefs_file), Context.MODE_PRIVATE).edit()
-        prefs.putString("Usuario",usuario.toString())
-        prefs.putString("Contrasenia",contrasenia.toString())
-        prefs.putString("Correo",correo.toString())
+        prefs.putString("Usuario",correo)
+        prefs.putString("Contrasenia",contrasenia)
         prefs.apply()
 
         binding.onOffLocalizacion.setOnCheckedChangeListener { buttonView, isChecked ->
