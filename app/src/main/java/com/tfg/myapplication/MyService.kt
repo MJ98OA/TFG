@@ -131,7 +131,7 @@ class MyService : Service() {
 
             }
 
-            if(coordenadasMias.distanceTo(coordenadasRestaurante).toDouble()<1.90){
+            if(coordenadasMias.distanceTo(coordenadasRestaurante).toDouble()<260.90){
                 seleccionRestaurante(datosRestaurante.nombre)
             }
 

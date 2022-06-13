@@ -64,7 +64,7 @@ class MainActivity : AppCompatActivity() {
                             startActivity(menuCliente)
                         }else if(valor==false){
                             val menuRestaurante:Intent=Intent(this,MenuRestaurantes::class.java).apply {
-                                putExtra("Usuario" , binding.correoTXT.text)
+                                putExtra("Usuario" , nickUsuarioAdaptado())
                                 putExtra("Correo",binding.correoTXT.text.toString())
                                 putExtra("Contrasenia",binding.contraseniaTXT.text.toString())
                             }

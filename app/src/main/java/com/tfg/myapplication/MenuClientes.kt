@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -19,7 +20,8 @@ class MenuClientes : AppCompatActivity() {
     companion object {
         private val REQUEST_PERMISSION_REQUEST_CODE = 2020
         private lateinit var binding: MenuclientesBinding
-        private lateinit var database: DatabaseReference
+        lateinit var database: DatabaseReference
+        private val TAG:String="MyService"
     }
 
 
@@ -37,6 +39,25 @@ class MenuClientes : AppCompatActivity() {
 
         obtenerDatos(usuario.toString())
 
+        binding.btnDescuento.setOnClickListener {
+            if(binding.restauranteSeleccionado.text.isNotEmpty()){
+                database.child("Restaurantes").child(prepararCorreo()).child("listaDescuentos").child(usuario.toString()).setValue(usuario.toString())
+            }
+        }
+
+        binding.btnPuntos.setOnClickListener {
+            if(binding.puntosUsuario.text.toString().toInt()<30){
+                Toast.makeText(this, "Necesitas 30 puntos minimo para hacer la operacion", Toast.LENGTH_SHORT).show()
+            }else{
+                database.child("Restaurantes").child(prepararCorreo()).child("listapuntos").child(usuario.toString()).setValue(usuario.toString())
+            }
+        }
+
+        binding.btnPuntos.setOnClickListener {
+            if(binding.restauranteSeleccionado.text.isNotEmpty()){
+                database.child("Restaurantes").child(prepararCorreo()).child("listapuntos").child(usuario.toString()).setValue(usuario.toString())
+            }
+        }
 
         binding.nombreUsuario.text= usuario?.let { it.substring(0,it.indexOf("@")) }.toString()
 
@@ -47,15 +68,11 @@ class MenuClientes : AppCompatActivity() {
         prefs.apply()
 
         binding.onOffLocalizacion.setOnCheckedChangeListener { buttonView, isChecked ->
-
             if(buttonView.isChecked){
-
                 if (ContextCompat.checkSelfPermission(
-                        applicationContext,android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
-                {
-                    ActivityCompat.requestPermissions(this@MenuClientes,
-                        arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION)
-                        ,REQUEST_PERMISSION_REQUEST_CODE)
+                        applicationContext,android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                            ActivityCompat.requestPermissions(this@MenuClientes,
+                                arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION),REQUEST_PERMISSION_REQUEST_CODE)
                 }
                 binding.btnLocalizacionSegundoPlano.visibility= View.VISIBLE
 
@@ -116,6 +133,22 @@ class MenuClientes : AppCompatActivity() {
         }
         database.addValueEventListener(postListener)
         database.addListenerForSingleValueEvent(postListener)
+
+    }
+
+    fun prepararCorreo():String{
+
+
+        var cadena=binding.restauranteSeleccionado.text.toString()
+        var resultado=""
+
+        cadena.forEach {
+            if(!it.isWhitespace()){
+                resultado+=it
+            }
+        }
+        Log.d(TAG,resultado)
+        return "$resultado@gmailcom"
 
     }
 
