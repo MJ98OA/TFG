@@ -67,13 +67,11 @@ class MyService : Service() {
     }
 
     override fun onDestroy() {
-        Log.d(TAG,"Destroy")
-        handler.removeCallbacksAndMessages(null)
-        super.onDestroy()
+
     }
 
     override fun onBind(intent: Intent?): IBinder? {
-        TODO("Not yet implemented")
+        return null
     }
 
     @SuppressLint("MissingPermission")
@@ -123,14 +121,20 @@ class MyService : Service() {
             coordenadasRestaurante.latitude = datosRestaurante.latitud
             coordenadasRestaurante.longitude = datosRestaurante.longitud
 
-            if(coordenadasMias.distanceTo(coordenadasRestaurante).toDouble()>3500.3398){
+            Log.d(TAG,coordenadasMias.distanceTo(coordenadasRestaurante).toString())
+
+            if(coordenadasMias.distanceTo(coordenadasRestaurante).toDouble()<500.00){
 
                 Log.d(TAG,"Notificacion")
                 createChannelNotifications(listaTimestamp[index].cHANNEL_ID, listaTimestamp[index].informacion)
                 sendNotificaction(listaTimestamp[index].cHANNEL_ID,listaTimestamp[index].cHANNEL_ID,listaTimestamp[index].informacion,listaTimestamp[index].notification_ID,latitude, longitud, coordenadasRestaurante.latitude, coordenadasRestaurante.longitude)
+
             }
 
-            Log.d(TAG,coordenadasMias.distanceTo(coordenadasRestaurante).toString())
+            if(coordenadasMias.distanceTo(coordenadasRestaurante).toDouble()<1.90){
+                seleccionRestaurante(datosRestaurante.nombre)
+            }
+
 
         }
 
@@ -199,6 +203,10 @@ class MyService : Service() {
 
 
 
+    }
+
+    fun seleccionRestaurante(nombreRestaurante: String){
+        database.child("Usuarios").child(usuario).child("restuaranteElegido").setValue(nombreRestaurante)
     }
 
 }

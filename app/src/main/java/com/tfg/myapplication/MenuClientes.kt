@@ -1,23 +1,15 @@
 package com.tfg.myapplication
 
-import android.annotation.SuppressLint
 import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.os.Looper
 import android.util.Log
 import android.view.View
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.google.android.gms.location.LocationCallback
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationResult
-import com.google.android.gms.location.LocationServices
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.tfg.myapplication.databinding.MenuclientesBinding
@@ -43,10 +35,10 @@ class MenuClientes : AppCompatActivity() {
         var correo: String? = bundle?.getString("Correo")
         var contrasenia:String? = bundle?.getString("Contrasenia")
 
-        obtenerpuntos(usuario.toString())
+        obtenerDatos(usuario.toString())
 
 
-        binding.usuario.text= usuario?.let { it.substring(0,it.indexOf("@")) }.toString()
+        binding.nombreUsuario.text= usuario?.let { it.substring(0,it.indexOf("@")) }.toString()
 
         //guardado de datos usuario en sharepreferences
         val prefs = getSharedPreferences(getString(R.string.prefs_file), Context.MODE_PRIVATE).edit()
@@ -67,37 +59,37 @@ class MenuClientes : AppCompatActivity() {
                 }
                 binding.btnLocalizacionSegundoPlano.visibility= View.VISIBLE
 
-
-                binding.btnLocalizacionSegundoPlano.setOnClickListener {
-                    if (ContextCompat.checkSelfPermission(
-                            applicationContext,android.Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED)
-                    {
-                        ActivityCompat.requestPermissions(this@MenuClientes,
-                            arrayOf(android.Manifest.permission.ACCESS_BACKGROUND_LOCATION)
-                            ,REQUEST_PERMISSION_REQUEST_CODE)
-
-                    }
-                }
-
                 val intent:Intent=Intent(this,MyService::class.java).apply {
                     putExtra("usuario",usuario.toString())
                 }
                 startService(intent)
 
-
-                binding.btnLogOut.setOnClickListener{
-                    val prefs = getSharedPreferences(getString(R.string.prefs_file), Context.MODE_PRIVATE).edit()
-                    prefs.clear()
-                    prefs.apply()
-                    FirebaseAuth.getInstance().signOut()
-                    onBackPressed()
-                }
-
-            }else
+            }else if(buttonView.isChecked){
                 Intent(this,MyService::class.java).also {
                     stopService(it)
                 }
+            }
 
+
+        }
+
+        binding.btnLocalizacionSegundoPlano.setOnClickListener {
+            if (ContextCompat.checkSelfPermission(
+                    applicationContext,android.Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED)
+            {
+                ActivityCompat.requestPermissions(this@MenuClientes,
+                    arrayOf(android.Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+                    ,REQUEST_PERMISSION_REQUEST_CODE)
+
+            }
+        }
+
+        binding.btnLogOut.setOnClickListener{
+            val prefs = getSharedPreferences(getString(R.string.prefs_file), Context.MODE_PRIVATE).edit()
+            prefs.clear()
+            prefs.apply()
+            FirebaseAuth.getInstance().signOut()
+            onBackPressed()
         }
 
 
@@ -106,13 +98,14 @@ class MenuClientes : AppCompatActivity() {
 
     }
 
-    fun obtenerpuntos(usuario:String){
+    fun obtenerDatos(usuario:String){
         database = FirebaseDatabase.getInstance().reference
         val postListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
 
-                binding.usuario.text=dataSnapshot.child("Usuarios").child(usuario).child("puntos").value.toString()
-
+                binding.puntosUsuario.text=dataSnapshot.child("Usuarios").child(usuario).child("puntos").value.toString()
+                binding.restauranteSeleccionado.text=dataSnapshot.child("Usuarios").child(usuario).child("restuaranteElegido").value.toString()
+                binding.nombreUsuario.text=dataSnapshot.child("Usuarios").child(usuario).key.toString()
             }
 
 
@@ -125,6 +118,7 @@ class MenuClientes : AppCompatActivity() {
         database.addListenerForSingleValueEvent(postListener)
 
     }
+
 
 
 }

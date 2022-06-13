@@ -211,7 +211,7 @@ class MainActivity : AppCompatActivity() {
 
         FirebaseAuth.getInstance().createUserWithEmailAndPassword(binding.correoTXT.text.toString(), binding.contraseniaTXT.text.toString()).addOnCompleteListener {
             if (it.isSuccessful) {
-                var nuevoCliente = Usuario(binding.correoTXT.text.toString(), 0, true)
+                var nuevoCliente = Usuario(binding.correoTXT.text.toString(), 0, true,"null")
                 val clienteBaseDatos = firebaseRealTimeData.getReference("Usuarios").child((nickUsuarioAdaptado()))
                 clienteBaseDatos.setValue(nuevoCliente)
                 ocultarRegistro()
