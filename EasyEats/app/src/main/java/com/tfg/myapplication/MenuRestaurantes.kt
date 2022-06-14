@@ -86,8 +86,12 @@ class MenuRestaurantes : AppCompatActivity() {
 
     fun darPuntos(usuario: String) {
         if(binding.edtUsuarioSumPuntos.text.isNotEmpty() && binding.edtPuntosaDar.text.isNotEmpty()){
+            var puntosActuales=0
+            database.child("Usuarios").child(binding.edtUsuarioSumPuntos.text.toString()).child("puntos").get().addOnSuccessListener {
+                puntosActuales=it.value.toString().toInt()
+            }
             database.child("Usuarios").child(binding.edtUsuarioSumPuntos.text.toString()).child("puntos").setValue(
-                binding.edtPuntosaDar.text.toString())
+                (binding.edtPuntosaDar.text.toString().toInt()+puntosActuales).toString())
         }
         database.child("Restaurantes").child(usuario).child("listapuntos").child(binding.edtUsuarioSumPuntos.text.toString()).removeValue()
     }
