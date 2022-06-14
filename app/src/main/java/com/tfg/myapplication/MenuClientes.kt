@@ -39,7 +39,7 @@ class MenuClientes : AppCompatActivity() {
 
         obtenerDatos(usuario.toString())
 
-        binding.btnDescuento.setOnClickListener {
+        binding.btnPuntos.setOnClickListener {
             if(binding.restauranteSeleccionado.text.isNotEmpty() && binding.restauranteSeleccionado.text!="null"){
                 database.child("Restaurantes").child(prepararCorreo()).child("listaDescuentos").child(usuario.toString()).setValue(usuario.toString())
             }else{
@@ -48,7 +48,7 @@ class MenuClientes : AppCompatActivity() {
             }
         }
 
-        binding.btnPuntos.setOnClickListener {
+        binding.btnDescuento.setOnClickListener {
             if(binding.restauranteSeleccionado.text.isNotEmpty() && binding.restauranteSeleccionado.text!="null"){
 
                 if(binding.puntosUsuario.text.toString().toInt()>20){
