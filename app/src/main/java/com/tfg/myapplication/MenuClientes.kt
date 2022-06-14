@@ -53,9 +53,9 @@ class MenuClientes : AppCompatActivity() {
 
                 if(binding.puntosUsuario.text.toString().toInt()>20){
                     var puntosActuales= binding.puntosUsuario.text.toString().toInt() - 20
-                    Log.d(TAG,puntosActuales.toString())
+                    Log.d(TAG,usuario.toString())
                     database.child("Restaurantes").child(prepararCorreo()).child("listaDescuentos").child(usuario.toString()).setValue(usuario.toString())
-                    database.child("Usuarios").child(prepararCorreo()).child("puntos").setValue(puntosActuales.toString())
+                    database.child("Usuarios").child(usuario.toString()).child("puntos").setValue(puntosActuales)
                 }else{
                     Toast.makeText(this, "Necesiatas mas puntos minimo 20", Toast.LENGTH_SHORT).show()
 
@@ -67,11 +67,6 @@ class MenuClientes : AppCompatActivity() {
 
         }
 
-        binding.btnPuntos.setOnClickListener {
-            if(binding.restauranteSeleccionado.text.isNotEmpty()){
-                database.child("Restaurantes").child(prepararCorreo()).child("listapuntos").child(usuario.toString()).setValue(usuario.toString())
-            }
-        }
 
         binding.nombreUsuario.text= usuario?.let { it.substring(0,it.indexOf("@")) }.toString()
 
