@@ -41,7 +41,7 @@ class MenuClientes : AppCompatActivity() {
 
         binding.btnPuntos.setOnClickListener {
             if(binding.restauranteSeleccionado.text.isNotEmpty() && binding.restauranteSeleccionado.text!="null"){
-                database.child("Restaurantes").child(prepararCorreo()).child("listaDescuentos").child(usuario.toString()).setValue(usuario.toString())
+                database.child("Restaurantes").child(prepararCorreo()).child("listapuntos").child(usuario.toString()).setValue(usuario.toString())
             }else{
                 Toast.makeText(this, "Ubiquese primero en un restaurante por favor, le aparecera en el menu cuando este en uno", Toast.LENGTH_SHORT).show()
 
