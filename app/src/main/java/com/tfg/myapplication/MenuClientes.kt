@@ -18,7 +18,7 @@ import com.tfg.myapplication.databinding.MenuclientesBinding
 class MenuClientes : AppCompatActivity() {
 
     companion object {
-        private val REQUEST_PERMISSION_REQUEST_CODE = 2020
+        private const val REQUEST_PERMISSION_REQUEST_CODE = 2020
         private lateinit var binding: MenuclientesBinding
         lateinit var database: DatabaseReference
         private val TAG:String="MyService"
@@ -40,17 +40,31 @@ class MenuClientes : AppCompatActivity() {
         obtenerDatos(usuario.toString())
 
         binding.btnDescuento.setOnClickListener {
-            if(binding.restauranteSeleccionado.text.isNotEmpty()){
+            if(binding.restauranteSeleccionado.text.isNotEmpty() && binding.restauranteSeleccionado.text!="null"){
                 database.child("Restaurantes").child(prepararCorreo()).child("listaDescuentos").child(usuario.toString()).setValue(usuario.toString())
+            }else{
+                Toast.makeText(this, "Ubiquese primero en un restaurante por favor, le aparecera en el menu cuando este en uno", Toast.LENGTH_SHORT).show()
+
             }
         }
 
         binding.btnPuntos.setOnClickListener {
-            if(binding.puntosUsuario.text.toString().toInt()<30){
-                Toast.makeText(this, "Necesitas 30 puntos minimo para hacer la operacion", Toast.LENGTH_SHORT).show()
+            if(binding.restauranteSeleccionado.text.isNotEmpty() && binding.restauranteSeleccionado.text!="null"){
+
+                if(binding.puntosUsuario.text.toString().toInt()>20){
+                    var puntosActuales= binding.puntosUsuario.text.toString().toInt() - 20
+                    Log.d(TAG,puntosActuales.toString())
+                    database.child("Restaurantes").child(prepararCorreo()).child("listaDescuentos").child(usuario.toString()).setValue(usuario.toString())
+                    database.child("Usuarios").child(prepararCorreo()).child("puntos").setValue(puntosActuales.toString())
+                }else{
+                    Toast.makeText(this, "Necesiatas mas puntos minimo 20", Toast.LENGTH_SHORT).show()
+
+                }
             }else{
-                database.child("Restaurantes").child(prepararCorreo()).child("listapuntos").child(usuario.toString()).setValue(usuario.toString())
+                Toast.makeText(this, "Ubiquese primero en un restaurante por favor, le aparecera en el menu cuando este en uno", Toast.LENGTH_SHORT).show()
+
             }
+
         }
 
         binding.btnPuntos.setOnClickListener {
@@ -121,8 +135,9 @@ class MenuClientes : AppCompatActivity() {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
 
                 binding.puntosUsuario.text=dataSnapshot.child("Usuarios").child(usuario).child("puntos").value.toString()
-                binding.restauranteSeleccionado.text=dataSnapshot.child("Usuarios").child(usuario).child("restuaranteElegido").value.toString()
+                binding.restauranteSeleccionado.text=dataSnapshot.child("Usuarios").child(usuario).child("restauranteSeleccionado").value.toString()
                 binding.nombreUsuario.text=dataSnapshot.child("Usuarios").child(usuario).key.toString()
+                binding.descuento.text=dataSnapshot.child("Usuarios").child(usuario).child("descuento").value.toString()
             }
 
 

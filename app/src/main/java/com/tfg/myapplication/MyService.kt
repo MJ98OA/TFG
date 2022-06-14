@@ -67,7 +67,8 @@ class MyService : Service() {
     }
 
     override fun onDestroy() {
-
+        handler.removeCallbacksAndMessages(null)
+        super.onDestroy()
     }
 
     override fun onBind(intent: Intent?): IBinder? {
@@ -206,7 +207,7 @@ class MyService : Service() {
     }
 
     fun seleccionRestaurante(nombreRestaurante: String){
-        database.child("Usuarios").child(usuario).child("restuaranteElegido").setValue(nombreRestaurante)
+        database.child("Usuarios").child(usuario).child("restauranteSeleccionado").setValue(nombreRestaurante)
     }
 
 }
