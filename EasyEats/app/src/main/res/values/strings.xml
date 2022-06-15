@@ -1,4 +1,0 @@
-<resources>
-    <string name="app_name">tfg</string>
-    <string name="prefs_file">com.tfg.myapplication.PREFERENCE_FILE_KEY</string>
-</resources>

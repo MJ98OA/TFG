@@ -49,20 +49,23 @@ class MenuClientes : AppCompatActivity() {
         }
 
         binding.btnDescuento.setOnClickListener {
-            if(binding.restauranteSeleccionado.text.isNotEmpty() && binding.restauranteSeleccionado.text!="null"){
-
-                if(binding.puntosUsuario.text.toString().toInt()>20){
-                    var puntosActuales= binding.puntosUsuario.text.toString().toInt() - 20
-                    Log.d(TAG,usuario.toString())
-                    database.child("Restaurantes").child(prepararCorreo()).child("listaDescuentos").child(usuario.toString()).setValue(usuario.toString())
-                    database.child("Usuarios").child(usuario.toString()).child("puntos").setValue(puntosActuales)
-                }else{
-                    Toast.makeText(this, "Necesiatas mas puntos minimo 20", Toast.LENGTH_SHORT).show()
-
+            if(binding.restauranteSeleccionado.text!="null" && binding.restauranteSeleccionado.text.isNotEmpty()) {
+                database.child("Restaurantes").child(prepararCorreo()).child("listaDescuentos").child(usuario.toString()).get().addOnSuccessListener {
+                    if (!it.exists()) {
+                        if (binding.puntosUsuario.text.toString().toInt() >= 20) {
+                            var puntosActuales = binding.puntosUsuario.text.toString().toInt() - 20
+                            Log.d(TAG, usuario.toString())
+                            database.child("Restaurantes").child(prepararCorreo()).child("listaDescuentos").child(usuario.toString()).setValue(usuario.toString())
+                            database.child("Usuarios").child(usuario.toString()).child("puntos").setValue(puntosActuales)
+                        } else {
+                            Toast.makeText(this, "Necesiatas mas puntos minimo 20", Toast.LENGTH_SHORT).show()
+                        }
+                    } else {
+                        Toast.makeText(this, "Ya tienes una solidcitud pendiente", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }else{
-                Toast.makeText(this, "Ubiquese primero en un restaurante por favor, le aparecera en el menu cuando este en uno", Toast.LENGTH_SHORT).show()
-
+                Toast.makeText(this, "Espere a que se asigne el restaurante", Toast.LENGTH_SHORT).show()
             }
 
         }
@@ -90,7 +93,7 @@ class MenuClientes : AppCompatActivity() {
                 }
                 startService(intent)
 
-            }else if(buttonView.isChecked){
+            }else if(!buttonView.isChecked){
                 Intent(this,MyService::class.java).also {
                     stopService(it)
                 }

@@ -155,14 +155,13 @@ class MainActivity : AppCompatActivity() {
         database.child("Usuarios").child(nickUsuarioAdaptado()).child("tipo").get().addOnSuccessListener {
             if(it.value==true) {
                 valor = true
-                binding.textoEslogan.text = valor.toString()
+
             }
         }
 
             database.child("Restaurantes").child(nickUsuarioAdaptado()).child("tipo").get().addOnSuccessListener {
                 if(it.value==false){
                     valor = false
-                    binding.textoEslogan.text= valor.toString()
             }
         }
 

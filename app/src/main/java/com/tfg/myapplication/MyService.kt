@@ -35,7 +35,7 @@ class MyService : Service() {
         private val TAG:String="MyService"
         val listaCoordenadasRestaurantes : MutableList<DatosRestaurante> = arrayListOf()
         var listaTimestamp:MutableList<Notificacion> = arrayListOf()
-        lateinit var usuario:String
+        var usuario:String=""
     }
 
 
@@ -132,7 +132,7 @@ class MyService : Service() {
 
             }
 
-            if(coordenadasMias.distanceTo(coordenadasRestaurante).toDouble()<260.90){
+            if(coordenadasMias.distanceTo(coordenadasRestaurante).toDouble()<100.90){
                 seleccionRestaurante(datosRestaurante.nombre)
             }
 
