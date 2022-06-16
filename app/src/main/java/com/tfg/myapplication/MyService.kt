@@ -34,15 +34,13 @@ class MyService : Service() {
         lateinit var database:DatabaseReference
         private val TAG:String="MyService"
         val listaCoordenadasRestaurantes : MutableList<DatosRestaurante> = arrayListOf()
-        var listaTimestamp:MutableList<Notificacion> = arrayListOf()
+        var listaDatosNotificaciones:MutableList<Notificacion> = arrayListOf()
         var usuario:String=""
     }
 
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-
         coordenadasRestaurantes()
-
 
         intent?.let {
             usuario = it.getStringExtra("usuario").toString()
@@ -50,9 +48,6 @@ class MyService : Service() {
 
         Log.d(TAG,"Start")
         Log.d(TAG, usuario)
-
-
-
 
         handler.apply {
             val runnable = object:Runnable{
@@ -113,9 +108,6 @@ class MyService : Service() {
         coordenadasMias.latitude = latitude
         coordenadasMias.longitude = longitud
 
-
-
-
         listaCoordenadasRestaurantes.forEachIndexed { index, datosRestaurante ->
 
             var coordenadasRestaurante = Location(LocationManager.GPS_PROVIDER)
@@ -127,8 +119,8 @@ class MyService : Service() {
             if(coordenadasMias.distanceTo(coordenadasRestaurante).toDouble()<500.00){
 
                 Log.d(TAG,"Notificacion")
-                createChannelNotifications(listaTimestamp[index].cHANNEL_ID, listaTimestamp[index].informacion)
-                sendNotificaction(listaTimestamp[index].cHANNEL_ID,listaTimestamp[index].cHANNEL_ID,listaTimestamp[index].informacion,listaTimestamp[index].notification_ID,latitude, longitud, coordenadasRestaurante.latitude, coordenadasRestaurante.longitude)
+                createChannelNotifications(listaDatosNotificaciones[index].cHANNEL_ID, listaDatosNotificaciones[index].informacion)
+                sendNotificaction(listaDatosNotificaciones[index].cHANNEL_ID,listaDatosNotificaciones[index].cHANNEL_ID,listaDatosNotificaciones[index].informacion,listaDatosNotificaciones[index].notification_ID,latitude, longitud, coordenadasRestaurante.latitude, coordenadasRestaurante.longitude)
 
             }
 
@@ -155,9 +147,13 @@ class MyService : Service() {
 
                 if(i.child("Nombre").exists()){
 
-                    listaCoordenadasRestaurantes.add(DatosRestaurante(i.child("Estrellas").value.toString(),i.child("Latitud").value.toString().toDouble(),i.child("Longitud").value.toString().toDouble(),i.child("Nombre").value.toString(),i.child("Precio Medio").value.toString()))
+                    listaCoordenadasRestaurantes.add(DatosRestaurante(i.child("Estrellas").value.toString(),i.child("Latitud").
+                    value.toString().toDouble(),i.child("Longitud").value.toString().toDouble(),i.child("Nombre").
+                    value.toString(),i.child("Precio Medio").value.toString()))
                     Log.d(TAG,i.child("Nombre").value.toString())
-                    listaTimestamp.add(Notificacion(0,i.child("Nombre").value.toString(),contador,(i.child("Estrellas").value.toString()+"\n" + i.child("Precio Medio").value)))
+                    listaDatosNotificaciones.add(Notificacion(0,i.child("Nombre").value.toString(),contador,(i.child("Estrellas").
+                    value.toString()+"\n" + i.child("Precio Medio").value)))
+
                     contador++
                 }
 

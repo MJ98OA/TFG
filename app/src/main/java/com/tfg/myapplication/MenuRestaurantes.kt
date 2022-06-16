@@ -3,6 +3,7 @@ package com.tfg.myapplication
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.tfg.myapplication.databinding.MenurestaurantesBinding
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -21,7 +22,8 @@ class MenuRestaurantes : AppCompatActivity() {
         private lateinit var firebaseRealTimeData: FirebaseDatabase
         private lateinit var database: DatabaseReference
         private val TAG:String="MyService"
-        var puntos=0
+        var listaUsuarioPuntos:MutableList<String> = arrayListOf()
+        var listaDescuentos:MutableList<String> = arrayListOf()
 
     }
 
@@ -44,14 +46,27 @@ class MenuRestaurantes : AppCompatActivity() {
 
         binding.btEnvioPuntos.setOnClickListener {
             if(binding.edtPuntosAdar.text.isNotEmpty() && binding.edtUsuarioSumPuntos.text.isNotEmpty()){
-                darPuntos(usuario.toString())
+                if(listaUsuarioPuntos.contains(binding.edtUsuarioSumPuntos.text.toString())){
+                    darPuntos(usuario.toString())
+                }else{
+                    Toast.makeText(this, "Compruebe que ha copiado bien el usuario o exista en la lista", Toast.LENGTH_SHORT).show()
+                }
+            }else{
+                Toast.makeText(this, "Rellena los campos y no pongas puntos", Toast.LENGTH_SHORT).show()
             }
 
         }
 
         binding.btDescuentoPuntos.setOnClickListener {
             if(binding.edtInsertarDescuento.text.isNotEmpty() && binding.edtInsertarUsuarioDescuento.text.isNotEmpty()){
-                darDescuento(usuario.toString())
+                if(listaDescuentos.contains(binding.edtInsertarUsuarioDescuento.text.toString())){
+                    darDescuento(usuario.toString())
+                }else{
+                    Toast.makeText(this, "Compruebe que ha copiado bien el usuario o exista en la lista", Toast.LENGTH_SHORT).show()
+                }
+
+            }else{
+                Toast.makeText(this, "Rellena los campos y no pongas puntos", Toast.LENGTH_SHORT).show()
             }
 
         }
@@ -67,19 +82,22 @@ class MenuRestaurantes : AppCompatActivity() {
 
     @SuppressLint("SetTextI18n")
     fun actualizarListas(usuario:String){
-
+        listaUsuarioPuntos.clear()
+        listaDescuentos.clear()
         Log.d(TAG,usuario)
         database = FirebaseDatabase.getInstance().reference
 
         database.child("Restaurantes").child(usuario).child("listapuntos").get().addOnSuccessListener {
             binding.listadoClientesPuntos.text=""
             it.children.forEach { child->
+                listaUsuarioPuntos.add(child.value.toString())
                 binding.listadoClientesPuntos.text= binding.listadoClientesPuntos.text.toString()+ child.value.toString() + "\n"
             }
         }
         database.child("Restaurantes").child(usuario).child("listaDescuentos").get().addOnSuccessListener {
             binding.listadoClientesDescuentos.text=""
             it.children.forEach { child->
+                listaDescuentos.add(child.value.toString())
                 binding.listadoClientesDescuentos.text= binding.listadoClientesDescuentos.text.toString()+ child.value.toString() + "\n"
             }
         }
@@ -98,6 +116,8 @@ class MenuRestaurantes : AppCompatActivity() {
                 binding.edtPuntosAdar.text.clear()
                 binding.edtUsuarioSumPuntos.text.clear()
 
+            }else{
+                Toast.makeText(this, "Compruebe que ha copiado bien el usuario", Toast.LENGTH_SHORT).show()
             }
         }
         actualizarListas(usuario)

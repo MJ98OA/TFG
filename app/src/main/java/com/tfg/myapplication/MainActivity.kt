@@ -89,7 +89,11 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.botonRegistroLoginTxt.setOnClickListener {
-            mostrarRegistro()
+            if(binding.botonRegistroLoginTxt.text.toString()!="Volver"){
+                mostrarRegistro()
+            }else{
+                ocultarRegistro()
+            }
         }
 
         binding.imgCliente.setOnClickListener {
@@ -245,7 +249,7 @@ class MainActivity : AppCompatActivity() {
         binding.imgRestaurante.visibility = View.VISIBLE
         binding.imgCliente.visibility = View.VISIBLE
         binding.txtEstadoLogReg.text = "Registrate"
-        binding.botonRegistroLoginTxt.text = ""
+        binding.botonRegistroLoginTxt.text = "Volver"
         binding.txtRegistroLogin.text = ""
     }
 
